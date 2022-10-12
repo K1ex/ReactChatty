@@ -1,7 +1,7 @@
 import express,{Express} from 'express'
-import {ChattyServer} from "./setupServer";
-import databaseConntection from './setupDatabase'
-import {config} from "./config";
+import databaseConntection from '@root/setupDatabase'
+import {config} from "@root/config";
+import {ChattyServer} from '@root/setupServer';
 
 /**
  * @name entryPoint to this application

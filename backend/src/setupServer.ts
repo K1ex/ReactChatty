@@ -1,4 +1,4 @@
-import {Application, json, urlencoded} from 'express'
+import {Application, json, NextFunction, urlencoded} from 'express'
 import http from 'http' //没有从http中解构出httpServer的原因：当设置socket,socketIO还有一个方法名为server会发生冲突
 import cors from 'cors'
 import hpp from 'hpp'
@@ -6,12 +6,17 @@ import helmet from 'helmet'
 import compression from 'compression'
 import cookieSession from 'cookie-session'
 import 'express-async-errors'
-import {config} from "./config";
-import {Server} from  'socket.io'
+import {Server} from 'socket.io'
 import {createClient} from 'redis'
 import {createAdapter} from '@socket.io/redis-adapter'
-const SERVER_PORT = 5000
+import applicationRoutes from '@root/route'
+import HTTP_STATUS from "http-status-codes";
+import Logger from 'bunyan'
+import {CustomError, IErrorResponse} from '@global/helpers/error-handler';
+import {config} from '@root/config';
 
+const SERVER_PORT = 5000
+const log:Logger = config.createLogger('server')
 export class ChattyServer {
     private app: Application
 
@@ -63,9 +68,25 @@ export class ChattyServer {
     }
 
     private routeMiddleware(app: Application): void {
+        applicationRoutes(app)
     }
 
     private globalErrorHandler(app: Application): void {
+        // @ts-ignore
+        app.all('*', (req: Request, res: Response) => {
+            // @ts-ignore
+            res.status(HTTP_STATUS.NOT_FOUND).json({ message: `${req.originalUrl} not found` });
+        });
+
+        // @ts-ignore
+        app.use((error: IErrorResponse, _req: Request, res: Response, next: NextFunction) => {
+            log.error(error)
+            if (error instanceof CustomError) {
+                // @ts-ignore
+                return res.status(error.statusCode).json(error.serializeErrors());
+            }
+            next();
+        });
     }
 
     private async startServer(app: Application): Promise<void> {
@@ -75,7 +96,7 @@ export class ChattyServer {
             this.startHTTPServer(httpServer)
             this.socketIOConnection(socketIO)
         } catch (error) {
-            console.log(error)
+            log.error(error)
         }
     }
 
@@ -94,14 +115,15 @@ export class ChattyServer {
     }
 
     private startHTTPServer(httpServer: http.Server): void {
-        console.log(`Server start process:${process.pid}`)
+        log.info(`Server start with process:${process.pid}`)
         httpServer.listen(SERVER_PORT,() => {
+            log.info('Server start at port'+SERVER_PORT)
             console.log(SERVER_PORT)
         })
     }
 
     private socketIOConnection(io:Server):void {
-
+      log.info('socketIOConnections')
     }
 
 }
