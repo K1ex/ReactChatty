@@ -55,39 +55,33 @@ export class ChattyServer {
 
     }
 
-    private standardMiddleware(app: Application): void {
-        app.use(compression())
-
-        app.use(json({
-            limit: '50mb'
-        }))
-        app.use(urlencoded({
-            extended:true
-        }))
-
-    }
+  private standardMiddleware(app: Application): void {
+    app.use(compression());
+    app.use(json({ limit: '50mb' }));
+    app.use(urlencoded({ extended: true, limit: '50mb' }));
+  }
 
     private routeMiddleware(app: Application): void {
         applicationRoutes(app)
     }
 
-    private globalErrorHandler(app: Application): void {
-        // @ts-ignore
-        app.all('*', (req: Request, res: Response) => {
-            // @ts-ignore
-            res.status(HTTP_STATUS.NOT_FOUND).json({ message: `${req.originalUrl} not found` });
-        });
+  private globalErrorHandler(app: Application): void {
+    // @ts-ignore
+    app.all('*', (req: Request, res: Response) => {
+      // @ts-ignore
+      res.status(HTTP_STATUS.NOT_FOUND).json({ message: `${req.originalUrl} not found` });
+    });
 
+    // @ts-ignore
+    app.use((error: IErrorResponse, _req: Request, res: Response, next: NextFunction) => {
+      log.error(error);
+      if (error instanceof CustomError) {
         // @ts-ignore
-        app.use((error: IErrorResponse, _req: Request, res: Response, next: NextFunction) => {
-            log.error(error)
-            if (error instanceof CustomError) {
-                // @ts-ignore
-                return res.status(error.statusCode).json(error.serializeErrors());
-            }
-            next();
-        });
-    }
+        return res.status(error.statusCode).json(error.serializeErrors());
+      }
+      next();
+    });
+  }
 
     private async startServer(app: Application): Promise<void> {
         try {
@@ -117,8 +111,7 @@ export class ChattyServer {
     private startHTTPServer(httpServer: http.Server): void {
         log.info(`Server start with process:${process.pid}`)
         httpServer.listen(SERVER_PORT,() => {
-            log.info('Server start at port'+SERVER_PORT)
-            console.log(SERVER_PORT)
+            log.info('Server start at port: '+SERVER_PORT)
         })
     }
 

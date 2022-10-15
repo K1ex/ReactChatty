@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@socket.io/redis-adapter": "^7.2.0",
+    "bcryptjs": "^2.4.3",
     "bunyan": "^1.8.15",
     "cloudinary": "^1.32.0",
     "compression": "^1.7.4",
@@ -28,6 +29,9 @@
     "hpp": "^0.2.3",
     "http-status-codes": "^2.2.0",
     "joi": "^17.6.3",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "mongodb": "^4.10.0",
     "mongoose": "^6.6.5",
     "redis": "^4.3.1",
     "socket.io": "^4.5.2",
@@ -36,12 +40,15 @@
     "typescript-transform-paths": "^3.3.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "@types/bunyan": "^1.8.8",
     "@types/compression": "^1.7.2",
     "@types/cookie-session": "^2.0.44",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.14",
     "@types/hpp": "^0.2.2",
+    "@types/jsonwebtoken": "^8.5.9",
+    "@types/lodash": "^4.14.186",
     "@types/node": "^18.8.4",
     "@typescript-eslint/eslint-plugin": "^5.40.0",
     "@typescript-eslint/parser": "^5.40.0",
